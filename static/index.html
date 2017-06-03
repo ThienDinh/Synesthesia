@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<title>Welcom to Synesthesia Training Program</title>
+	<script type="text/javascript" src="lib/d3.js"></script>
+</head>
+<body onload="loadAlphabet()" bgcolor="black">
+<p style="color:white;font-size:50px">Welcome to Synesthesia Development Program by Thien Dinh</p>
+	<script type="text/javascript">
+		function loadAlphabet(){
+			const rectSize = 50;
+			d3.csv('lib/color-alphabet.csv', function(err, res) {
+				var svg = d3.select('body').append('svg')
+						.attr('width', window.innerWidth)
+						.attr('height', rectSize);
+				svg.selectAll('.color-alph')
+					.data(res)
+					.enter()
+					.append('rect')
+					.attr('class','color-alph')
+					.attr('x', function(obj, i){
+						console.log(i);
+						return i * rectSize;
+					})
+					.attr('y',0)
+					.attr('width', rectSize)
+					.attr('height', rectSize)
+					.attr('fill', function(obj){
+						return `rgb(${obj.red}, ${obj.green}, ${obj.blue})`;
+					})
+					.attr('stroke', 'white')
+					.append('title')
+						.text(function(obj){
+							return obj.name;
+						});
+				svg = d3.select('body').append('svg')
+						.attr('width', window.innerWidth)
+						.attr('height', rectSize);
+				svg.selectAll('.char-alph')
+					.data(res)
+					.enter()
+					.append('text')
+					.attr('class','char-alph')
+					.attr('x', function(obj, i){
+						console.log(i);
+						return i * rectSize + rectSize/2;
+					})
+					.attr('y', rectSize/2)
+					.attr('text-anchor', 'middle')
+					.attr('alignment-baseline', 'middle')
+					.attr('font-size', 40)
+					.attr('font-family', 'Consolas')
+					.attr('fill', function(obj) {
+						return `rgb(${obj.red}, ${obj.green}, ${obj.blue})`;
+					})
+					.attr('stroke', 'white')
+					.attr('stroke-width', 0.5)
+					.text(function(obj){
+						return obj.alphabet;
+					});
+				//
+				console.log(res);
+			})
+		}
+	</script>
+</body>
+</html>
