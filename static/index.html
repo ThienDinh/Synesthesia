@@ -3,14 +3,15 @@
 <head>
 	<title>Welcom to Synesthesia Training Program</title>
 	<script type="text/javascript" src="lib/d3.js"></script>
-</head>
-<body onload="loadAlphabet()" bgcolor="black">
-<p style="color:white;font-size:50px">Welcome to Synesthesia Development Program by Thien Dinh</p>
+	<style type="text/css">
+	</style>
 	<script type="text/javascript">
+		var colorAlphabet;
 		function loadAlphabet(){
 			const rectSize = 50;
 			d3.csv('lib/color-alphabet.csv', function(err, res) {
-				var svg = d3.select('body').append('svg')
+				colorAlphabet = res;
+				var svg = d3.select('#alphabet').append('svg')
 						.attr('width', window.innerWidth)
 						.attr('height', rectSize);
 				svg.selectAll('.color-alph')
@@ -33,7 +34,7 @@
 						.text(function(obj){
 							return obj.name;
 						});
-				svg = d3.select('body').append('svg')
+				svg = d3.select('#alphabet').append('svg')
 						.attr('width', window.innerWidth)
 						.attr('height', rectSize);
 				svg.selectAll('.char-alph')
@@ -63,5 +64,86 @@
 			})
 		}
 	</script>
+	<script type="text/javascript">
+		function transformColorAlphabet(colorAlphabet){
+			var colorAlphabetObject = {};
+			for(var i in colorAlphabet) {
+				if (colorAlphabet[i].alphabet != undefined) {
+					colorAlphabetObject[colorAlphabet[i].alphabet] = {
+						rgb:`rgb(${colorAlphabet[i].red},${colorAlphabet[i].green},${colorAlphabet[i].blue})`
+					}
+				}
+				else {
+					console.log(colorAlphabet[i]);
+				}
+			}
+			return colorAlphabetObject;
+		}
+		function colorizeText(textarea){
+			var textarea = document.querySelector('#input-text');
+			var colorAlphabetObj = transformColorAlphabet(colorAlphabet);
+			var text = textarea.value.replace(/[^A-Za-z]/g, " ").trim().split("");
+			console.log(text);
+			var colorTextSvg = d3.select("#color-text").append('svg')
+						.attr('width', window.innerWidth)
+						.attr('height', window.innerHeight);
+			const _1em = 16; //pixel
+			const emMultiplier = 3;
+			var posX = 0;
+			var posY = 0;
+			var totalCharWidthInX = 0;
+			var totalCharWidthInY = 0;
+			var newLine = false;
+			colorTextSvg.selectAll(".text-char").data(text).enter().append("text")
+					.attr("class", ".text-char")
+					.attr("x", function(c, i) {
+						totalCharWidthInX += _1em  * emMultiplier/2;
+						var svgWidth = colorTextSvg.attr('width');
+						if (totalCharWidthInX >= svgWidth - 100) {
+							posX = 0;
+							totalCharWidthInX = 0;
+							return _1em * posX * emMultiplier/2;
+						}
+						else {
+							var x = _1em * posX * emMultiplier/2;
+							posX++;
+							return x;
+						}
+					})
+					.attr("y", function(c, i) {
+						totalCharWidthInY += _1em  * emMultiplier/2;
+						var svgWidth = colorTextSvg.attr('width');
+						if (totalCharWidthInY >= svgWidth  - 100) {
+							posY++;
+							totalCharWidthInY = 0;
+						}
+						console.log(posY);
+						return 50 * posY;
+					})
+					.attr('text-anchor', 'start')
+					.attr('alignment-baseline', 'hanging')
+					.attr('font-size', emMultiplier + "em")
+					.attr('font-family', 'Consolas')
+					.attr('fill', function(c) {
+						c = c.toLowerCase();
+						if (colorAlphabetObj[c] == undefined) {
+							return 'white';
+						}
+						return colorAlphabetObj[c].rgb;
+					})
+					.attr('stroke', 'white')
+					.attr('stroke-width', 0.5)
+					.text(function(c){
+						return c;
+					});
+		}
+	</script>
+</head>
+<body onload="loadAlphabet()" bgcolor="black">
+<p style="color:white;font-size:50px">Welcome to Synesthesia Development Program by Thien Dinh</p>
+<div id="alphabet"></div>
+<textarea id="input-text" rows="10" cols="100" style="display:block;">Enter some text here!</textarea>
+<button onclick="colorizeText()">Colorize the Text</button>
+<div id="color-text"></div>
 </body>
 </html>
